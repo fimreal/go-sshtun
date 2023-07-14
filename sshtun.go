@@ -1,6 +1,8 @@
 package gosshtun
 
-import "golang.org/x/crypto/ssh"
+import (
+	"golang.org/x/crypto/ssh"
+)
 
 type SSHTun struct {
 	client *ssh.Client

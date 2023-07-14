@@ -20,11 +20,14 @@ func main() {
 	if err != nil {
 		ezap.Fatal(err)
 	}
-	st.Serve()
 
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	<-signalChan
-	st.Close()
-	os.Exit(0)
+	go func() {
+		signalChan := make(chan os.Signal, 1)
+		signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		<-signalChan
+		st.Close()
+		os.Exit(0)
+	}()
+
+	st.Serve()
 }
