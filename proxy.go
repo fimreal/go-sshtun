@@ -1,7 +1,6 @@
 package gosshtun
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net"
@@ -9,18 +8,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/armon/go-socks5"
 	"github.com/fimreal/goutils/ezap"
 )
 
 func (st *SSHTun) Serve() {
-	listenAddr := st.config.Tunnel.ListenAddr + ":" + strconv.Itoa(st.config.Tunnel.ListenPort)
+	listenAddr := st.ListenAddr
 	l, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		ezap.Fatal(err)
 	}
 
-	// go st.HandleSocks5(l)
 	ezap.Info("Service listen on ", listenAddr)
 	for {
 		client, err := l.Accept()
@@ -36,7 +33,7 @@ func (st *SSHTun) handle(client net.Conn) {
 	var b [1024]byte
 	_, err := client.Read(b[:])
 	if err != nil {
-		ezap.Error(err)
+		ezap.Error(err.Error())
 		return
 	}
 	if b[0] == 0x05 { //only for socks5
@@ -44,7 +41,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		client.Write([]byte{0x05, 0x00})
 		n, err := client.Read(b[:])
 		if err != nil {
-			ezap.Error(err)
+			ezap.Error(err.Error())
 			return
 		}
 		var host, port string
@@ -58,7 +55,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		}
 		port = strconv.Itoa(int(b[n-2])<<8 | int(b[n-1]))
 		// server, err := net.Dial("tcp", net.JoinHostPort(host, port))
-		server, err := st.client.Dial("tcp", net.JoinHostPort(host, port))
+		server, err := st.Client.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
 			ezap.Error("[socks5]" + err.Error())
 			return
@@ -70,7 +67,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		var host, port string
 		host = net.IPv4(b[4], b[5], b[6], b[7]).String()
 		port = strconv.Itoa(int(b[2])<<8 | int(b[3]))
-		server, err := st.client.Dial("tcp", net.JoinHostPort(host, port))
+		server, err := st.Client.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
 			ezap.Error("[socks4] " + err.Error())
 			return
@@ -84,7 +81,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		method := ss[0]
 		if method == "CONNECT" {
 			host := ss[1]
-			server, err := st.client.Dial("tcp", host)
+			server, err := st.Client.Dial("tcp", host)
 			if err != nil {
 				ezap.Error("[http] " + err.Error())
 				return
@@ -112,7 +109,7 @@ func (st *SSHTun) handle(client net.Conn) {
 				address = _url.Host
 			}
 
-			server, err := st.client.Dial("tcp", address)
+			server, err := st.Client.Dial("tcp", address)
 			if err != nil {
 				ezap.Error("[http] " + err.Error())
 				return
@@ -137,33 +134,8 @@ func tunnel(client net.Conn, server net.Conn) {
 	server.Close()
 }
 
-func (st *SSHTun) HandleSocks5(l net.Listener) {
-	if st.client == nil {
-		ezap.Errorf("未初始化 ssh 连接")
-		return
-	}
-
-	conf := &socks5.Config{
-		Dial: func(ctx context.Context, network, addr string) (net.Conn, error) {
-			return st.client.Dial(network, addr)
-		},
-	}
-
-	serverSocks, err := socks5.New(conf)
-	if err != nil {
-		ezap.Error(err.Error())
-		return
-	}
-	if err := serverSocks.Serve(l); err != nil {
-		ezap.Error("failed to create socks5 server", err)
-	}
-	// if err := serverSocks.ListenAndServe("tcp", listenAddr); err != nil {
-	// 	ezap.Error("failed to create socks5 server", err)
-	// }
-}
-
 func (st *SSHTun) Close() {
-	if st.client != nil {
-		st.client.Close()
+	if st.Client != nil {
+		st.Client.Close()
 	}
 }

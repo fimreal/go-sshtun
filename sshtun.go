@@ -5,14 +5,17 @@ import (
 )
 
 type SSHTun struct {
-	client *ssh.Client
-	config *Config
+	Client *ssh.Client
+	Config *SSHConfig
+	// 动态隧道监听地址配置
+	ListenAddr string
 }
 
-func NewSSHTun(config *Config) (*SSHTun, error) {
-	sc, err := NewSSHClient(config)
+func NewSSHTun(c *SSHConfig) (*SSHTun, error) {
+	sc, err := c.NewSSHClient()
 	return &SSHTun{
-		client: sc,
-		config: config,
+		Client:     sc,
+		Config:     c,
+		ListenAddr: "0.0.0.0:10080",
 	}, err
 }
