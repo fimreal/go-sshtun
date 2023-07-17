@@ -100,15 +100,18 @@ func (c *SSHConfig) SetSSHUser() string {
 }
 
 func (c *SSHConfig) SSHPassword() ssh.AuthMethod {
-	stdin := int(syscall.Stdin)
-	oldState, err := term.GetState(stdin)
-	if err == nil {
-		defer term.Restore(stdin, oldState)
-	}
 	if c.Password != "" {
 		return ssh.Password(c.Password)
+	} else if c.IdentityKey != "" {
+		// 密钥优先
+		return nil
 	} else {
 		defer ezap.Println()
+		stdin := int(syscall.Stdin)
+		oldState, err := term.GetState(stdin)
+		if err == nil {
+			defer term.Restore(stdin, oldState)
+		}
 	}
 	ezap.Printf("ssh password (press enter skip to using private Key): ")
 	bytePassword, _ := term.ReadPassword(int(syscall.Stdin))
