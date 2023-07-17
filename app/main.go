@@ -11,21 +11,24 @@ import (
 )
 
 func main() {
-	// ezap.SetLevel("debug")
+	if viper.GetBool("debug") {
+		ezap.SetLevel("debug")
+	}
 
-	config := gosshtun.DefaultSSHConfig()
-	config.RemoteAddr = viper.GetString("host")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.IdentityKey = viper.GetString("identitykey")
-	config.IdentityKeyDir = viper.GetString("identitykeydir")
-	config.Timeout = viper.GetDuration("timeout")
+	// config := gosshtun.DefaultSSHConfig()
+	config := &gosshtun.SSHConfig{
+		RemoteAddr:     viper.GetString("host"),
+		User:           viper.GetString("user"),
+		Password:       viper.GetString("password"),
+		IdentityKey:    viper.GetString("identitykey"),
+		IdentityKeyDir: viper.GetString("identitykeydir"),
+		Timeout:        viper.GetDuration("timeout"),
+	}
 
 	st, err := gosshtun.NewSSHTun(config)
 	if err != nil {
 		ezap.SetLogTime("")
 		ezap.Fatal(err)
-		ezap.SetLogTime("2006-1-2 15:04:05")
 	}
 	st.ListenAddr = viper.GetString("listen")
 
