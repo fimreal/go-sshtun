@@ -60,7 +60,7 @@ func (st *SSHTun) handle(client net.Conn) {
 			ezap.Error("[socks5]" + err.Error())
 			return
 		}
-		ezap.Errorf("[socks5] connect to %s\n", net.JoinHostPort(host, port))
+		ezap.Errorf("[socks5] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
 		tunnel(client, server)
 	} else if b[0] == 0x04 { //only for socks4
@@ -72,7 +72,7 @@ func (st *SSHTun) handle(client net.Conn) {
 			ezap.Error("[socks4] " + err.Error())
 			return
 		}
-		ezap.Infof("[socks4] connect to %s\n", net.JoinHostPort(host, port))
+		ezap.Infof("[socks4] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
 		tunnel(client, server)
 	} else { //http
@@ -86,7 +86,7 @@ func (st *SSHTun) handle(client net.Conn) {
 				ezap.Error("[http] " + err.Error())
 				return
 			}
-			ezap.Infof("[http] connect to %s\n", host)
+			ezap.Infof("[http] connect to %s", host)
 			success := []byte("HTTP/1.1 200 Connection established\r\n\r\n")
 			_, err = client.Write(success)
 			if err != nil {
@@ -114,7 +114,7 @@ func (st *SSHTun) handle(client net.Conn) {
 				ezap.Error("[http] " + err.Error())
 				return
 			}
-			ezap.Infof("[http] forward to %s\n", address)
+			ezap.Infof("[http] forward to %s", address)
 
 			fmt.Fprint(server, s)
 
