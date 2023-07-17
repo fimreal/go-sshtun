@@ -20,7 +20,6 @@ func init() {
 	pflag.StringP("identitykey", "i", "", "identity key file")
 	pflag.StringP("identitykeydir", "k", "", "identity key dir")
 	pflag.DurationP("timeout", "t", 10*time.Second, "timeout")
-	// pflag.BoolP("help","h",pflag.ErrHelp(),"")
 
 	viper.AutomaticEnv()
 	pflag.ErrHelp = errors.New("")

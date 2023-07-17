@@ -14,6 +14,8 @@ func main() {
 	if viper.GetBool("debug") {
 		ezap.SetLevel("debug")
 	}
+	ezap.SetLogTime("2006-1-2 15:04:05")
+	ezap.Debug("debug mod")
 
 	// config := gosshtun.DefaultSSHConfig()
 	config := &gosshtun.SSHConfig{

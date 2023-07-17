@@ -15,14 +15,15 @@ import (
 
 // 隧道配置
 type SSHConfig struct {
-	// ssh server address, default: "127.0.0.1:22"
+	// ssh server address
 	RemoteAddr string
-	// ssh user, default: "root"
+	// ssh user
 	User string
-	// ssh password, default: ""
-	Password    string
+	// ssh password
+	Password string
+	// private key file
 	IdentityKey string
-	// ssh config dir, default: {UserHomeDir}/.ssh
+	// ssh config dir
 	IdentityKeyDir string
 	// Timeout: 10s
 	Timeout time.Duration
@@ -73,11 +74,11 @@ func (c *SSHConfig) SetSSHHost() string {
 		}
 		remote = strings.TrimSuffix(remote, "\n")
 		remote = strings.TrimSuffix(remote, "\r")
-		if !strings.Contains(remote, ":") {
-			host = remote + ":22"
-		} else {
-			host = remote
-		}
+		host = remote
+
+	}
+	if !strings.Contains(host, ":") {
+		host = host + ":22"
 	}
 	ezap.Debugf("set remote host: %s", host)
 	return host
