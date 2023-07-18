@@ -12,8 +12,8 @@ type SSHTun struct {
 func NewSSHTun(c *SSHConfig) (*SSHTun, error) {
 	sc, err := c.NewSSHClient()
 	return &SSHTun{
-		Client:     sc,
-		ListenAddr: "0.0.0.0:10080",
+		Client: sc,
+		// ListenAddr: "0.0.0.0:10080",
 	}, err
 }
 

@@ -2,6 +2,7 @@ package gosshtun
 
 import (
 	"net/url"
+	"strings"
 
 	"github.com/fimreal/goutils/ezap"
 	"github.com/wzshiming/sysproxy"
@@ -9,10 +10,17 @@ import (
 
 // ref. https://github.com/wzshiming/sysproxy/blob/master/cmd/sysproxy/main.go
 func (st *SSHTun) EnableSystemProxy() (ok bool) {
-	_, err := url.Parse("http://" + st.ListenAddr)
+	_url, err := url.Parse("http://" + st.ListenAddr)
 	if err != nil {
 		ezap.Errorf("listen address[%s] is not vaild: %s", st.ListenAddr, err)
 		return
+	}
+
+	var proxy string
+	if strings.HasPrefix(_url.Host, "0.0.0.0:") {
+		proxy = "127.0.0.1:" + _url.Port()
+	} else {
+		proxy = _url.Host
 	}
 
 	err = sysproxy.OnNoProxy([]string{"127.0.0.1", "localhost"})
@@ -22,7 +30,7 @@ func (st *SSHTun) EnableSystemProxy() (ok bool) {
 	}
 
 	// set http proxy
-	err = sysproxy.OnHTTP(st.ListenAddr)
+	err = sysproxy.OnHTTP(proxy)
 	if err != nil {
 		ezap.Errorf("error set system http proxy: %s", err)
 		return
@@ -35,7 +43,7 @@ func (st *SSHTun) EnableSystemProxy() (ok bool) {
 	ezap.Info("set system http proxy: ", out)
 
 	// set https proxy
-	err = sysproxy.OnHTTPS(st.ListenAddr)
+	err = sysproxy.OnHTTPS(proxy)
 	if err != nil {
 		ezap.Errorf("error set system https proxy: %s", err)
 		return

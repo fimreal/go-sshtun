@@ -37,6 +37,13 @@ func main() {
 	// ssh tunnel service
 	go st.Serve()
 
+	// pac
+	var pacon bool
+	if pac := viper.GetString("pac"); pac != "" {
+		pacon = st.PacOn(pac)
+		st.PacInspect()
+	}
+
 	// system proxy
 	var enabledSystemProxy bool
 	if viper.GetBool("sysproxy") {
@@ -50,6 +57,9 @@ func main() {
 	ezap.Println()
 	if enabledSystemProxy {
 		st.DisableSystemProxy()
+	}
+	if pacon {
+		st.PacOff()
 	}
 	st.Close()
 	os.Exit(0)
