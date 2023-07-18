@@ -34,6 +34,8 @@ WINDOWS_ARCH_LIST = \
 	windows-armv7 \
 	windows-arm64
 
+default: docker-build
+
 all: linux-amd64 linux-armv7 darwin-amd64 darwin-arm64 windows-amd64 # Most used
 
 docker:
