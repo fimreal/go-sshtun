@@ -6,6 +6,7 @@ require (
 	github.com/fimreal/goutils v0.0.0-20230414034050-319a3bfa7f38
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
+	github.com/wzshiming/sysproxy v0.2.2
 	golang.org/x/crypto v0.11.0
 	golang.org/x/term v0.10.0
 )

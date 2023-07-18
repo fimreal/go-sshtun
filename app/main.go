@@ -34,13 +34,23 @@ func main() {
 	}
 	st.ListenAddr = viper.GetString("listen")
 
-	go func() {
-		signalChan := make(chan os.Signal, 1)
-		signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-		<-signalChan
-		st.Close()
-		os.Exit(0)
-	}()
+	// ssh tunnel service
+	go st.Serve()
 
-	st.Serve()
+	// system proxy
+	var enabledSystemProxy bool
+	if viper.GetBool("sysproxy") {
+		enabledSystemProxy = st.EnableSystemProxy()
+	}
+
+	// catch signal
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	<-signalChan
+	ezap.Println()
+	if enabledSystemProxy {
+		st.DisableSystemProxy()
+	}
+	st.Close()
+	os.Exit(0)
 }

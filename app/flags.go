@@ -12,6 +12,7 @@ func init() {
 	// service
 	pflag.BoolP("debug", "d", false, "debug mode")
 	pflag.StringP("listen", "l", "127.0.0.1:10080", "service listing on")
+	pflag.BoolP("sysproxy", "s", false, "enable system proxy")
 
 	// ssh
 	pflag.StringP("host", "h", "", "ssh server address, like \"epurs.com:2222\"")

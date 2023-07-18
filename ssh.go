@@ -114,7 +114,7 @@ func (c *SSHConfig) SSHPassword() ssh.AuthMethod {
 			defer term.Restore(stdin, oldState)
 		}
 	}
-	ezap.Printf("ssh password (press enter skip to using private Key): ")
+	ezap.Printf("ssh password (press enter skip to using private key): ")
 	bytePassword, _ := term.ReadPassword(int(syscall.Stdin))
 	return ssh.Password(string(bytePassword))
 }
