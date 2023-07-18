@@ -60,7 +60,7 @@ func (st *SSHTun) handle(client net.Conn) {
 			ezap.Error("[socks5]" + err.Error())
 			return
 		}
-		ezap.Errorf("[socks5] connect to %s", net.JoinHostPort(host, port))
+		ezap.Infof("[socks5] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
 		tunnel(client, server)
 	} else if b[0] == 0x04 { //only for socks4
@@ -132,10 +132,4 @@ func tunnel(client net.Conn, server net.Conn) {
 	io.Copy(server, client)
 	client.Close()
 	server.Close()
-}
-
-func (st *SSHTun) Close() {
-	if st.Client != nil {
-		st.Client.Close()
-	}
 }
