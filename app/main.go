@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"os"
 	"os/signal"
 	"syscall"
@@ -49,6 +50,14 @@ func main() {
 	if viper.GetBool("sysproxy") {
 		enabledSystemProxy = st.EnableSystemProxy()
 	}
+
+	go func() {
+		for {
+			bufio.NewReader(os.Stdin).ReadString('\n')
+			st.Stat()
+			// ezap.Printf("\rTips: press CTRL + c to exit application")
+		}
+	}()
 
 	// catch signal
 	signalChan := make(chan os.Signal, 1)

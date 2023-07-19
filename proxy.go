@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/fimreal/goutils/ezap"
 )
@@ -63,7 +64,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		}
 		ezap.Infof("[socks5] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
-		tunnel(client, server)
+		st.tunnel(client, server)
 	} else if b[0] == 0x04 {
 		// for socks4
 		var host, port string
@@ -76,7 +77,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		}
 		ezap.Infof("[socks4] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
-		tunnel(client, server)
+		st.tunnel(client, server)
 	} else {
 		// for http
 		s := string(b[:])
@@ -101,7 +102,7 @@ func (st *SSHTun) handle(client net.Conn) {
 				ezap.Errorf("[http] connect to %s", host)
 				return
 			}
-			tunnel(client, server)
+			st.tunnel(client, server)
 		} else if strings.HasSuffix(_url.Path, ".pac") && _url.RawQuery == "rs=sshtun" {
 			// for embeded pac rule
 			defer client.Close()
@@ -156,20 +157,22 @@ func (st *SSHTun) handle(client net.Conn) {
 
 			ezap.Infof("[http] forward to %s", address)
 			fmt.Fprint(server, s)
-			tunnel(client, server)
+			st.tunnel(client, server)
 		}
 	}
 }
 
-func tunnel(client net.Conn, server net.Conn) {
+func (st *SSHTun) tunnel(client net.Conn, server net.Conn) {
 	go func() {
-		io.Copy(client, server)
+		n, _ := io.Copy(client, server)
 		server.Close()
 		client.Close()
+		atomic.AddInt64(&st.TotalUpload, n)
 	}()
-	io.Copy(server, client)
+	n, _ := io.Copy(server, client)
 	client.Close()
 	server.Close()
+	atomic.AddInt64(&st.TotalDownload, n)
 }
 
 // 获取可访问地址
