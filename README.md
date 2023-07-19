@@ -1,5 +1,13 @@
 # go-sshtun
-ssh tunnel via http, socks
+ssh tunnel via http, socks, support set pac or global system proxy
+
+# useage
+#### quick start
+```bash
+docker run --rm --network host epurs/sshtun:lastest
+```
+
+#### download from release 
 
 ```bash
 # sshtun --help
@@ -13,6 +21,24 @@ ssh tunnel via http, socks
   -S, --sysproxy                enable system proxy
   -t, --timeout duration        timeout (default 10s)
   -u, --user string             ssh user
+```
+
+#### docker run
+
+```bash
+# docker run --rm epurs/sshtun:lastest --help
+
+# docker run --rm --network host -e "USER=root" -e "HOST=epurs.com" -e "PASSWORD=123456" -E "LISTEN=0.0.0.0:1080" epurs/sshtun:lastest
+
+docker run -d --name sshtun1080 \
+--restart unless-stopped \
+-p 1080:1080 \
+-v /Users/fimreal/.ssh:/root/.ssh \
+epurs/sshtun:lastest \
+-h epurs.com \
+-uroot \
+-i /root/.ssh/id_ed25519 \
+-l 0.0.0.0:1080
 ```
 
 # reference
