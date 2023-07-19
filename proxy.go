@@ -103,40 +103,49 @@ func (st *SSHTun) handle(client net.Conn) {
 				return
 			}
 			st.tunnel(client, server)
-		} else if strings.HasSuffix(_url.Path, ".pac") && _url.RawQuery == "rs=sshtun" {
-			// for embeded pac rule
-			defer client.Close()
-			filename := strings.TrimPrefix(_url.Path, "/pac/")
-			ezap.Info("[in] request pac file: ", filename)
-			f, err := pacFiles.Open(filename)
-			if err != nil {
-				ezap.Errorf("[in] fail to open file: %s", err)
-				_, err = client.Write([]byte("HTTP/1.1 404\r\n\r\n"))
+		} else if _url.RawQuery == "rs=sshtun" {
+			if strings.HasSuffix(_url.Path, ".pac") {
+				// for embeded pac rule
+				defer client.Close()
+				filename := strings.TrimPrefix(_url.Path, "/pac/")
+				ezap.Info("[in] request pac file: ", filename)
+				f, err := pacFiles.Open(filename)
 				if err != nil {
-					ezap.Errorf("[in] fail to reply 404 to the connection: %s", err)
-				} else {
-					ezap.Info("[in] return 404")
+					ezap.Errorf("[in] fail to open file: %s", err)
+					_, err = client.Write([]byte("HTTP/1.1 404\r\n\r\n"))
+					if err != nil {
+						ezap.Errorf("[in] fail to reply 404 to the connection: %s", err)
+					} else {
+						ezap.Info("[in] return 404")
+					}
+					return
+				}
+				defer f.Close()
+				proxy, _ := proxyAddr(st.ListenAddr)
+				_, err = client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
+				if err != nil {
+					ezap.Errorf("[in] err handle request: %s", err)
+					return
+				}
+				_, err = client.Write([]byte("var  proxy = \"SOCKS5 " + proxy + "; SOCKS " + proxy + "; PROXY " + proxy + "; DIRECT;\";\r\n\r\n"))
+				if err != nil {
+					ezap.Errorf("[in] fail to write data to the connection: %s", err)
+					return
+				}
+				_, err = io.Copy(client, f)
+				if err != nil {
+					ezap.Errorf("[in] err: handle request: %s", err)
+					return
 				}
 				return
-			}
-			defer f.Close()
-			proxy, _ := proxyAddr(st.ListenAddr)
-			_, err = client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
-			if err != nil {
-				ezap.Errorf("[in] err handle request: %s", err)
+			} else if _url.Path == "/stat" {
+				// for traffic statistics
+				defer client.Close()
+				client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
+				client.Write([]byte("SSH Tunnel:\r\nServer: " + st.Client.RemoteAddr().String() + "\r\nListen Address: " + st.ListenAddr))
+				client.Write([]byte("\r\n\r\nStatistic:\r\nTotal Upload: " + beautifySize(st.TotalUpload) + "\r\nTotal Download: " + beautifySize(st.TotalDownload)))
 				return
 			}
-			_, err = client.Write([]byte("var  proxy = \"SOCKS5 " + proxy + "; SOCKS " + proxy + "; PROXY " + proxy + "; DIRECT;\";\r\n\r\n"))
-			if err != nil {
-				ezap.Errorf("[in] fail to write data to the connection: %s", err)
-				return
-			}
-			_, err = io.Copy(client, f)
-			if err != nil {
-				ezap.Errorf("[in] err: handle request: %s", err)
-				return
-			}
-			return
 		} else {
 			var address string
 			if !strings.Contains(_url.Host, ":") {
