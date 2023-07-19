@@ -58,7 +58,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		// server, err := net.Dial("tcp", net.JoinHostPort(host, port))
 		server, err := st.Client.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
-			ezap.Error("[socks5]" + err.Error())
+			ezap.Errorf("[socks5] ", err)
 			return
 		}
 		ezap.Infof("[socks5] connect to %s", net.JoinHostPort(host, port))
@@ -71,7 +71,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		port = strconv.Itoa(int(b[2])<<8 | int(b[3]))
 		server, err := st.Client.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
-			ezap.Error("[socks4] " + err.Error())
+			ezap.Errorf("[socks4] ", err)
 			return
 		}
 		ezap.Infof("[socks4] connect to %s", net.JoinHostPort(host, port))
@@ -82,56 +82,62 @@ func (st *SSHTun) handle(client net.Conn) {
 		s := string(b[:])
 		ss := strings.Split(s, " ")
 		method := ss[0]
+		host := ss[1]
+		_url, err := url.Parse(host)
+		if err != nil {
+			ezap.Errorf("[http] could not parse url: %s", err)
+			return
+		}
 		if method == "CONNECT" {
-			host := ss[1]
 			server, err := st.Client.Dial("tcp", host)
 			if err != nil {
-				ezap.Error("[http] " + err.Error())
+				ezap.Errorf("[http] %s", err)
 				return
 			}
 			ezap.Infof("[http] connect to %s", host)
 			success := []byte("HTTP/1.1 200 Connection established\r\n\r\n")
 			_, err = client.Write(success)
 			if err != nil {
-				ezap.Error("[http] " + err.Error())
+				ezap.Errorf("[http] connect to %s", host)
 				return
 			}
 			tunnel(client, server)
-		} else {
-			u := ss[1]
-			_url, err := url.Parse(u)
+		} else if strings.HasSuffix(_url.Path, ".pac") && _url.RawQuery == "rs=sshtun" {
+			// for embeded pac rule
+			defer client.Close()
+			filename := strings.TrimPrefix(_url.Path, "/pac/")
+			ezap.Info("[in] request pac file: ", filename)
+			f, err := pacFiles.Open(filename)
 			if err != nil {
-				ezap.Errorf("[http] could not parse url: %s", err)
+				ezap.Errorf("[in] fail to open file: %s", err)
+				_, err = client.Write([]byte("HTTP/1.1 404\r\n\r\n"))
+				if err != nil {
+					ezap.Errorf("[in] fail to reply 404 to the connection: %s", err)
+				} else {
+					ezap.Info("[in] return 404")
+				}
 				return
 			}
-			address := ""
-
-			// for embeded pac rule
-			if method == "GET" && strings.HasSuffix(_url.Path, ".pac") && _url.RawQuery == "rs=sshtun" {
-				filename := strings.TrimPrefix(_url.Path, "/pac/")
-				f, err := pacFiles.Open(filename)
-				ezap.Info("[in] request pac file: ", filename)
-				if err == nil {
-					proxy, _ := proxyAddr(st.ListenAddr)
-					_, err = client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
-					if err != nil {
-						ezap.Errorf("[in] err: %s", err)
-					}
-					_, err = client.Write([]byte("var  proxy = \"SOCKS5 " + proxy + "; SOCKS " + proxy + "; PROXY " + proxy + "; DIRECT;\";\r\n\r\n"))
-					if err != nil {
-						ezap.Errorf("[in] err: %s", err)
-					}
-					_, err = io.Copy(client, f)
-					if err != nil {
-						ezap.Errorf("[in] err: %s", err)
-					}
-					defer f.Close()
-					defer client.Close()
-					return
-				}
-				ezap.Errorf("[in] err: %s", err)
+			defer f.Close()
+			proxy, _ := proxyAddr(st.ListenAddr)
+			_, err = client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
+			if err != nil {
+				ezap.Errorf("[in] err handle request: %s", err)
+				return
 			}
-
+			_, err = client.Write([]byte("var  proxy = \"SOCKS5 " + proxy + "; SOCKS " + proxy + "; PROXY " + proxy + "; DIRECT;\";\r\n\r\n"))
+			if err != nil {
+				ezap.Errorf("[in] fail to write data to the connection: %s", err)
+				return
+			}
+			_, err = io.Copy(client, f)
+			if err != nil {
+				ezap.Errorf("[in] err: handle request: %s", err)
+				return
+			}
+			return
+		} else {
+			var address string
 			if !strings.Contains(_url.Host, ":") {
 				if _url.Scheme == "http" {
 					address = _url.Host + ":80"
@@ -144,13 +150,12 @@ func (st *SSHTun) handle(client net.Conn) {
 
 			server, err := st.Client.Dial("tcp", address)
 			if err != nil {
-				ezap.Error("[http] " + err.Error())
+				ezap.Errorf("[http] ", err)
 				return
 			}
+
 			ezap.Infof("[http] forward to %s", address)
-
 			fmt.Fprint(server, s)
-
 			tunnel(client, server)
 		}
 	}
