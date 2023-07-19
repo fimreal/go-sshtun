@@ -14,14 +14,6 @@ var (
 	pacFiles, _ = fs.Sub(embedPAC, "pac")
 )
 
-// func PacFile(filename string) []byte {
-// 	byte, err := fs.ReadFile(pacFiles, filename)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	return byte
-// }
-
 func (st *SSHTun) PacOn(rule string) (ok bool) {
 	proxy, _ := proxyAddr(st.ListenAddr)
 	if rule == "gfw" || rule == "tiny" {

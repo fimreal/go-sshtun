@@ -13,7 +13,7 @@ func NewSSHTun(c *SSHConfig) (*SSHTun, error) {
 	sc, err := c.NewSSHClient()
 	return &SSHTun{
 		Client: sc,
-		// ListenAddr: "0.0.0.0:10080",
+		// ListenAddr: "0.0.0.0:1080",
 	}, err
 }
 

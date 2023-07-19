@@ -12,7 +12,7 @@ docker run --rm --network host epurs/sshtun:lastest
 ```bash
 # sshtun --help
   -d, --debug                   debug mode
-  -h, --host string             ssh server address, like "epurs.com:2222"
+  -h, --host string             ssh server address, like "192.168.50.220:2222"
   -i, --identitykey string      identity key file
   -k, --identitykeydir string   identity key dir
   -l, --listen string           service listing on (default "127.0.0.1:1080")

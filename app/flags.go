@@ -16,7 +16,7 @@ func init() {
 	pflag.StringP("listen", "l", "127.0.0.1:1080", "service listing on")
 
 	// ssh
-	pflag.StringP("host", "h", "", "ssh server address, like \"epurs.com:2222\"")
+	pflag.StringP("host", "h", "", "ssh server address, like \"192.168.50.220:2222\"")
 	pflag.StringP("user", "u", "", "ssh user")
 	pflag.StringP("password", "p", "", "ssh password")
 	pflag.StringP("identitykey", "i", "", "identity key file")
