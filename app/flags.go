@@ -11,9 +11,9 @@ import (
 func init() {
 	// service
 	pflag.BoolP("debug", "d", false, "debug mode")
-	pflag.StringP("listen", "l", "127.0.0.1:10080", "service listing on")
 	pflag.BoolP("sysproxy", "s", false, "enable system proxy")
-	pflag.StringP("pac", "P", "", "pac url, like \"http://127.0.0.1:8000/my.pac\"")
+	pflag.StringP("pac", "P", "", "enable pac. need a pac url, like \"http://127.0.0.1:8000/my.pac\", or use embedded rules(gfw, tiny)")
+	pflag.StringP("listen", "l", "127.0.0.1:10080", "service listing on")
 
 	// ssh
 	pflag.StringP("host", "h", "", "ssh server address, like \"epurs.com:2222\"")
@@ -23,6 +23,7 @@ func init() {
 	pflag.StringP("identitykeydir", "k", "", "identity key dir")
 	pflag.DurationP("timeout", "t", 10*time.Second, "timeout")
 
+	// viper parse
 	viper.AutomaticEnv()
 	pflag.ErrHelp = errors.New("")
 	pflag.Parse()

@@ -36,7 +36,8 @@ func (st *SSHTun) handle(client net.Conn) {
 		ezap.Error(err.Error())
 		return
 	}
-	if b[0] == 0x05 { //only for socks5
+	if b[0] == 0x05 {
+		// for socks5
 		//response to client: no need to validation
 		client.Write([]byte{0x05, 0x00})
 		n, err := client.Read(b[:])
@@ -63,7 +64,8 @@ func (st *SSHTun) handle(client net.Conn) {
 		ezap.Infof("[socks5] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
 		tunnel(client, server)
-	} else if b[0] == 0x04 { //only for socks4
+	} else if b[0] == 0x04 {
+		// for socks4
 		var host, port string
 		host = net.IPv4(b[4], b[5], b[6], b[7]).String()
 		port = strconv.Itoa(int(b[2])<<8 | int(b[3]))
@@ -75,7 +77,8 @@ func (st *SSHTun) handle(client net.Conn) {
 		ezap.Infof("[socks4] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
 		tunnel(client, server)
-	} else { //http
+	} else {
+		// for http
 		s := string(b[:])
 		ss := strings.Split(s, " ")
 		method := ss[0]
@@ -96,8 +99,38 @@ func (st *SSHTun) handle(client net.Conn) {
 			tunnel(client, server)
 		} else {
 			u := ss[1]
-			_url, _ := url.Parse(u)
+			_url, err := url.Parse(u)
+			if err != nil {
+				ezap.Errorf("[http] could not parse url: %s", err)
+				return
+			}
 			address := ""
+
+			// for embeded pac rule
+			if method == "GET" && strings.HasSuffix(_url.Path, ".pac") && _url.RawQuery == "rs=sshtun" {
+				filename := strings.TrimPrefix(_url.Path, "/pac/")
+				f, err := pacFiles.Open(filename)
+				ezap.Info("[in] request pac file: ", filename)
+				if err == nil {
+					proxy, _ := proxyAddr(st.ListenAddr)
+					_, err = client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
+					if err != nil {
+						ezap.Errorf("[in] err: %s", err)
+					}
+					_, err = client.Write([]byte("var  proxy = \"SOCKS5 " + proxy + "; SOCKS " + proxy + "; PROXY " + proxy + "; DIRECT;\";\r\n\r\n"))
+					if err != nil {
+						ezap.Errorf("[in] err: %s", err)
+					}
+					_, err = io.Copy(client, f)
+					if err != nil {
+						ezap.Errorf("[in] err: %s", err)
+					}
+					defer f.Close()
+					defer client.Close()
+					return
+				}
+				ezap.Errorf("[in] err: %s", err)
+			}
 
 			if !strings.Contains(_url.Host, ":") {
 				if _url.Scheme == "http" {
@@ -132,4 +165,18 @@ func tunnel(client net.Conn, server net.Conn) {
 	io.Copy(server, client)
 	client.Close()
 	server.Close()
+}
+
+// 获取可访问地址
+func proxyAddr(listenAddr string) (proxy string, err error) {
+	_url, err := url.Parse("http://" + listenAddr)
+	if err != nil {
+		return
+	}
+	if strings.HasPrefix(_url.Host, "0.0.0.0:") {
+		proxy = "127.0.0.1:" + _url.Port()
+	} else {
+		proxy = _url.Host
+	}
+	return
 }

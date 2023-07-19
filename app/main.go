@@ -55,12 +55,15 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	<-signalChan
 	ezap.Println()
+	// unset system proxy
 	if enabledSystemProxy {
 		st.DisableSystemProxy()
 	}
+	// pac off
 	if pacon {
 		st.PacOff()
 	}
+	// close ssh client
 	st.Close()
 	os.Exit(0)
 }

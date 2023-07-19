@@ -1,17 +1,17 @@
 "use strict";
 
 var direct = "DIRECT"
-var proxy = "SOCKS5 127.0.0.1:10090; SOCKS 127.0.0.1:10090; PROXY 127.0.0.1:10090;" + direct;
+var proxy = "SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080; PROXY 127.0.0.1:1080;" + direct;
 
 var ProxyHostList = {
-    "www.google.com.hk": true,
+    "youtube.com": true,
 };
 
 function FindProxyForURL(url, host) {
     // proxy list
     if (host.indexOf(".") < 0
         || ProxyHostList[host]
-        || /\.?google\.com$/.test(host)
+        || /\.?google/.test(host)
     ) {
         return proxy;
     }
