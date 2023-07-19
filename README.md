@@ -10,7 +10,7 @@ ssh tunnel via http, socks
   -l, --listen string           service listing on (default "127.0.0.1:1080")
   -P, --pac string              enable pac. need a pac url, like "http://www.example.com/my.pac", or use embedded rules(gfw, tiny)
   -p, --password string         ssh password
-  -s, --sysproxy                enable system proxy
+  -S, --sysproxy                enable system proxy
   -t, --timeout duration        timeout (default 10s)
   -u, --user string             ssh user
 ```

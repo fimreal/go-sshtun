@@ -11,8 +11,8 @@ import (
 func init() {
 	// service
 	pflag.BoolP("debug", "d", false, "debug mode")
-	pflag.BoolP("sysproxy", "s", false, "enable system proxy")
-	pflag.StringP("pac", "P", "", "enable pac. need a pac url, like \"http://127.0.0.1:8000/my.pac\", or use embedded rules(gfw, tiny)")
+	pflag.BoolP("sysproxy", "S", false, "enable system proxy")
+	pflag.StringP("pac", "P", "", "enable pac (proxy auto-config). need a pac url, like \"http://127.0.0.1:8000/my.pac\", or use embedded rules(gfw, tiny)")
 	pflag.StringP("listen", "l", "127.0.0.1:1080", "service listing on")
 
 	// ssh
