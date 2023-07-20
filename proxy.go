@@ -84,11 +84,11 @@ func (st *SSHTun) handle(client net.Conn) {
 		ss := strings.Split(s, " ")
 		method := ss[0]
 		host := ss[1]
-		_url, err := url.Parse(host)
-		if err != nil {
-			ezap.Errorf("[http] could not parse url: %s", err)
-			return
-		}
+		_url, _ := url.Parse(host)
+		// if err != nil {
+		// 	ezap.Errorf("[http] could not parse url: %s", err)
+		// 	return
+		// }
 		if method == "CONNECT" {
 			server, err := st.Client.Dial("tcp", host)
 			if err != nil {
