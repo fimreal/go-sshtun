@@ -53,7 +53,10 @@ func main() {
 
 	go func() {
 		for {
-			bufio.NewReader(os.Stdin).ReadString('\n')
+			_, err := bufio.NewReader(os.Stdin).ReadString('\n')
+			if err != nil {
+				return
+			}
 			st.Stat()
 			// ezap.Printf("\rTips: press CTRL + c to exit application")
 		}
