@@ -183,14 +183,14 @@ func (st *SSHTun) handle(client net.Conn) {
 
 func (st *SSHTun) tunnel(client net.Conn, server net.Conn) {
 	go func() {
+		defer server.Close()
+		defer client.Close()
 		n, _ := io.Copy(client, server)
-		server.Close()
-		client.Close()
 		atomic.AddInt64(&st.TotalUpload, n)
 	}()
+	defer client.Close()
+	defer server.Close()
 	n, _ := io.Copy(server, client)
-	client.Close()
-	server.Close()
 	atomic.AddInt64(&st.TotalDownload, n)
 }
 
