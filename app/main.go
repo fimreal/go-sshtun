@@ -77,5 +77,6 @@ func main() {
 	}
 	// close ssh client
 	st.Close()
+	st.Stat()
 	os.Exit(0)
 }
