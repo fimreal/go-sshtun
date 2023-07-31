@@ -61,9 +61,8 @@ func (st *SSHTun) handle(client net.Conn) {
 		// server, err := net.Dial("tcp", net.JoinHostPort(host, port))
 		server, err := st.Client.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
-			ezap.Errorf("[socks5] fail to dial the host", err)
 			client.Close()
-			return
+			ezap.Fatal("[socks5] fail to dial the host", err)
 		}
 		ezap.Infof("[socks5] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
@@ -75,9 +74,8 @@ func (st *SSHTun) handle(client net.Conn) {
 		port = strconv.Itoa(int(b[2])<<8 | int(b[3]))
 		server, err := st.Client.Dial("tcp", net.JoinHostPort(host, port))
 		if err != nil {
-			ezap.Errorf("[socks4] ", err)
 			client.Close()
-			return
+			ezap.Fatal("[socks4] fail to dial the host", err)
 		}
 		ezap.Infof("[socks4] connect to %s", net.JoinHostPort(host, port))
 		client.Write([]byte{0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //response to client connection is done.
@@ -92,9 +90,8 @@ func (st *SSHTun) handle(client net.Conn) {
 		if method == "CONNECT" {
 			server, err := st.Client.Dial("tcp", host)
 			if err != nil {
-				ezap.Errorf("[http] fail to dial the host: %s", err)
 				client.Close()
-				return
+				ezap.Fatal("[http] fail to dial the host: %s", err)
 			}
 			ezap.Infof("[http] connect to %s", host)
 			success := []byte("HTTP/1.1 200 Connection established\r\n\r\n")
