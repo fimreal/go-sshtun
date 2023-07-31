@@ -19,6 +19,8 @@ func NewSSHTun(c *SSHConfig) (*SSHTun, error) {
 	return &SSHTun{
 		Client: sc,
 		// ListenAddr: "0.0.0.0:1080",
+		TotalUpload:   0,
+		TotalDownload: 0,
 	}, err
 }
 
