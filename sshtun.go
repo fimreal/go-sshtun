@@ -2,6 +2,7 @@ package gosshtun
 
 import (
 	"strconv"
+	"sync/atomic"
 
 	"github.com/fimreal/goutils/ezap"
 	"golang.org/x/crypto/ssh"
@@ -32,8 +33,8 @@ func (st *SSHTun) Close() {
 
 func (st *SSHTun) Stat() {
 	ezap.Println("Statistic:")
-	ezap.Info("Total Upload: ", beautifySize(st.TotalUpload))
-	ezap.Info("Total Download: ", beautifySize(st.TotalDownload))
+	ezap.Info("Total Upload: ", beautifySize(atomic.LoadInt64(&st.TotalUpload)))
+	ezap.Info("Total Download: ", beautifySize(atomic.LoadInt64(&st.TotalDownload)))
 }
 
 // https://github.com/justmao945/mallory/blob/ad32fd8abd0c4a763734717e762e2afae187fce5/beautify.go#L24

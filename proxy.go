@@ -150,7 +150,7 @@ func (st *SSHTun) handle(client net.Conn) {
 					defer client.Close()
 					client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
 					client.Write([]byte("SSH Tunnel:\r\nServer: " + st.Client.RemoteAddr().String() + "\r\nListen Address: " + st.ListenAddr))
-					client.Write([]byte("\r\n\r\nStatistic:\r\nTotal Upload: " + beautifySize(st.TotalUpload) + "\r\nTotal Download: " + beautifySize(st.TotalDownload)))
+					client.Write([]byte("\r\n\r\nStatistic:\r\nTotal Upload: " + beautifySize(atomic.LoadInt64(&st.TotalUpload)) + "\r\nTotal Download: " + beautifySize(atomic.LoadInt64(&st.TotalDownload))))
 					return
 				}
 			} else {
@@ -187,11 +187,13 @@ func (st *SSHTun) tunnel(client net.Conn, server net.Conn) {
 		defer client.Close()
 		n, _ := io.Copy(client, server)
 		atomic.AddInt64(&st.TotalUpload, n)
+		// ezap.Debug("TotalUpload: ", atomic.LoadInt64(&st.TotalUpload))
 	}()
 	defer client.Close()
 	defer server.Close()
 	n, _ := io.Copy(server, client)
 	atomic.AddInt64(&st.TotalDownload, n)
+	// ezap.Debug("TotalDownload: ", atomic.LoadInt64(&st.TotalDownload))
 }
 
 // 获取可访问地址
