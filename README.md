@@ -28,7 +28,7 @@ docker run --rm --network host epurs/sshtun:lastest
 ```bash
 # docker run --rm epurs/sshtun:lastest --help
 
-# docker run --rm --network host -e "USER=root" -e "HOST=epurs.com" -e "PASSWORD=123456" -E "LISTEN=0.0.0.0:1080" epurs/sshtun:lastest
+# docker run --rm --network host -e "USER=root" -e "HOST=epurs.com" -e "PASSWORD=123456" -e "LISTEN=0.0.0.0:1080" epurs/sshtun:lastest
 
 docker run -d --name sshtun1080 \
 --restart unless-stopped \
