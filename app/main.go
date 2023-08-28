@@ -43,12 +43,23 @@ func main() {
 	if pac := viper.GetString("pac"); pac != "" {
 		pacon = st.PacOn(pac)
 		st.PacInspect()
+		// pac off
+		defer func() {
+			if pacon {
+				st.PacOff()
+			}
+		}()
 	}
-
 	// system proxy
 	var enabledSystemProxy bool
 	if viper.GetBool("sysproxy") {
 		enabledSystemProxy = st.EnableSystemProxy()
+		// unset system proxy
+		defer func() {
+			if enabledSystemProxy {
+				st.DisableSystemProxy()
+			}
+		}()
 	}
 
 	go func() {
@@ -67,14 +78,6 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	<-signalChan
 	ezap.Println()
-	// unset system proxy
-	if enabledSystemProxy {
-		st.DisableSystemProxy()
-	}
-	// pac off
-	if pacon {
-		st.PacOff()
-	}
 	// close ssh client
 	st.Close()
 	st.Stat()

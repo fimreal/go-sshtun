@@ -84,6 +84,10 @@ func (st *SSHTun) handle(client net.Conn) {
 		// for http
 		s := string(b[:])
 		ss := strings.Split(s, " ")
+		if len(ss) < 2 {
+			ezap.Errorf("[http] request seems to be invalid: %s", s)
+			return
+		}
 		method := ss[0]
 		host := ss[1]
 		// ezap.Debugf("%+v", s)
@@ -105,7 +109,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		} else {
 			_url, err := url.Parse(host)
 			if err != nil {
-				ezap.Errorf("[http] could not parse url: %s", err)
+				ezap.Errorf("[http] could not parse url: %+v", err.Error())
 				client.Close()
 				return
 			}
@@ -128,7 +132,10 @@ func (st *SSHTun) handle(client net.Conn) {
 						return
 					}
 					defer f.Close()
-					proxy, _ := proxyAddr(st.ListenAddr)
+					proxy, err := proxyAddr(st.ListenAddr)
+					if err != nil {
+						ezap.Fatal("Could not parse listen address: ", err)
+					}
 					_, err = client.Write([]byte("HTTP/1.1 200\r\n\r\n"))
 					if err != nil {
 						ezap.Errorf("[in] err handle request: %s", err)
