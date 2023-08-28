@@ -24,11 +24,11 @@ func (st *SSHTun) PacOn(rule string) (ok bool) {
 		ezap.Errorf("unable use pac rule[%s]: %s", rule, err)
 		return
 	}
-	ezap.Info("enable proxy auto-config(pac): ", st.PacInspect())
+	ezap.Info("enable proxy auto-config(pac): ", PacInspect())
 	return true
 }
 
-func (st *SSHTun) PacInspect() string {
+func PacInspect() string {
 	out, err := sysproxy.GetPAC()
 	if err != nil {
 		ezap.Errorf("unable get pac rule: %s", err)
@@ -37,10 +37,11 @@ func (st *SSHTun) PacInspect() string {
 	return out
 }
 
-func (st *SSHTun) PacOff() {
+func PacOff() {
 	err := sysproxy.OffPAC()
 	if err != nil {
 		ezap.Errorf("unable prue pac rule: %s", err)
+	} else {
+		ezap.Info("disable proxy auto-config(pac)")
 	}
-	ezap.Info("disable proxy auto-config(pac)")
 }

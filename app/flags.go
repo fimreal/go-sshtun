@@ -9,6 +9,7 @@ import (
 )
 
 func init() {
+	pflag.BoolP("reset", "R", false, "reset/prune system proxy rule.")
 	// service
 	pflag.BoolP("debug", "d", false, "debug mode")
 	pflag.BoolP("sysproxy", "S", false, "enable system proxy")

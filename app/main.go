@@ -18,6 +18,12 @@ func main() {
 	ezap.SetLogTime("2006-1-2 15:04:05")
 	ezap.Debug("debug mod")
 
+	if viper.GetBool("reset") {
+		gosshtun.PacOff()
+		gosshtun.DisableSystemProxy()
+		os.Exit(0)
+	}
+
 	// config := gosshtun.DefaultSSHConfig()
 	config := &gosshtun.SSHConfig{
 		RemoteAddr:     viper.GetString("host"),
@@ -42,11 +48,11 @@ func main() {
 	var pacon bool
 	if pac := viper.GetString("pac"); pac != "" {
 		pacon = st.PacOn(pac)
-		st.PacInspect()
+		gosshtun.PacInspect()
 		// pac off
 		defer func() {
 			if pacon {
-				st.PacOff()
+				gosshtun.PacOff()
 			}
 		}()
 	}
@@ -57,7 +63,7 @@ func main() {
 		// unset system proxy
 		defer func() {
 			if enabledSystemProxy {
-				st.DisableSystemProxy()
+				gosshtun.DisableSystemProxy()
 			}
 		}()
 	}

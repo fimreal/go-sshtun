@@ -47,15 +47,18 @@ func (st *SSHTun) EnableSystemProxy() (ok bool) {
 	return true
 }
 
-func (st *SSHTun) DisableSystemProxy() {
-	ezap.Info("unset system http proxy")
+func DisableSystemProxy() {
 	err := sysproxy.OffHTTP()
 	if err != nil {
-		ezap.Debug(err.Error())
+		ezap.Errorf("unable prue pac rule: %s", err)
+	} else {
+		ezap.Info("unset system https proxy")
 	}
-	ezap.Info("unset system https proxy")
+
 	err = sysproxy.OffHTTPS()
 	if err != nil {
 		ezap.Debug(err.Error())
+	} else {
+		ezap.Info("unset system https proxy")
 	}
 }
