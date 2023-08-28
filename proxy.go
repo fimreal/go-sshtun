@@ -34,7 +34,7 @@ func (st *SSHTun) handle(client net.Conn) {
 	var b [1024]byte
 	_, err := client.Read(b[:])
 	if err != nil {
-		ezap.Errorf("could not figure out protocol: %s", err)
+		ezap.Errorf("not figure out protocol: %s", err)
 		client.Close()
 		return
 	}

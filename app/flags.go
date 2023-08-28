@@ -27,5 +27,7 @@ func init() {
 	viper.AutomaticEnv()
 	pflag.ErrHelp = errors.New("")
 	pflag.Parse()
+	// pflag sort is no used
+	// pflag.CommandLine.SortFlags = false
 	viper.BindPFlags(pflag.CommandLine)
 }
