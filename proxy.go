@@ -109,7 +109,7 @@ func (st *SSHTun) handle(client net.Conn) {
 		} else {
 			_url, err := url.Parse(host)
 			if err != nil {
-				ezap.Errorf("[http] could not parse url: %+v", err.Error())
+				ezap.Errorf("[http] could not parse url: %s", err)
 				client.Close()
 				return
 			}
