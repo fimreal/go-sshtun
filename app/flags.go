@@ -17,7 +17,7 @@ func init() {
 
 	// ssh
 	pflag.StringP("host", "h", "", "ssh server address, like \"192.168.50.220:2222\"")
-	pflag.StringP("user", "u", "", "ssh user")
+	pflag.StringP("username", "u", "", "ssh user")
 	pflag.StringP("password", "p", "", "ssh password")
 	pflag.StringP("identitykey", "i", "", "identity key file")
 	pflag.StringP("identitykeydir", "k", "", "identity key dir")

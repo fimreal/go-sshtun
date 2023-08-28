@@ -21,7 +21,7 @@ func main() {
 	// config := gosshtun.DefaultSSHConfig()
 	config := &gosshtun.SSHConfig{
 		RemoteAddr:     viper.GetString("host"),
-		User:           viper.GetString("user"),
+		User:           viper.GetString("username"),
 		Password:       viper.GetString("password"),
 		IdentityKey:    viper.GetString("identitykey"),
 		IdentityKeyDir: viper.GetString("identitykeydir"),
