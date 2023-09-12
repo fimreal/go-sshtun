@@ -1,7 +1,7 @@
 # go-sshtun
 ssh tunnel via http, socks, support set pac or global system proxy
 
-# useage
+# usage
 #### quick start
 ```bash
 docker run --rm --network host epurs/sshtun:lastest
