@@ -40,6 +40,7 @@ func main() {
 		ezap.Fatal(err)
 	}
 	st.ListenAddr = viper.GetString("listen")
+	st.Auth = viper.GetString("auth")
 
 	// ssh tunnel service
 	go st.Serve()

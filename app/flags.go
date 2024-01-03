@@ -15,6 +15,7 @@ func init() {
 	pflag.BoolP("sysproxy", "S", false, "enable system proxy")
 	pflag.StringP("pac", "P", "", "enable pac (proxy auto-config). need a pac url, like \"http://127.0.0.1:8000/my.pac\", or use embedded rules(gfw, tiny)")
 	pflag.StringP("listen", "l", "127.0.0.1:1080", "service listing on")
+	pflag.StringP("auth", "a", "", "enable and set socks5/http proxy service authentication, eg. \"user:pass\"")
 
 	// ssh
 	pflag.StringP("host", "h", "", "ssh server address, like \"192.168.50.220:2222\"")
