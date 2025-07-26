@@ -9,7 +9,7 @@ import (
 func (st *SSHTun) EnableSystemProxy() (ok bool) {
 	proxy, err := proxyAddr(st.ListenAddr)
 	if err != nil {
-		ezap.Fatalf("listen address[%s] is not vaild: %s", st.ListenAddr, err)
+		ezap.Fatalf("listen address[%s] is not valid: %s", st.ListenAddr, err)
 	}
 
 	// set noproxy

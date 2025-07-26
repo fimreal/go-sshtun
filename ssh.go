@@ -104,7 +104,6 @@ func (c *SSHConfig) SSHPassword() ssh.AuthMethod {
 	if c.Password != "" {
 		return ssh.Password(c.Password)
 	} else if c.IdentityKey != "" {
-		// 密钥优先
 		return nil
 	} else {
 		defer ezap.Println()

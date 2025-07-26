@@ -4,7 +4,7 @@ ssh tunnel via http, socks, support set pac or global system proxy
 # usage
 #### quick start
 ```bash
-docker run --rm --network host epurs/sshtun:lastest
+docker run --rm --network host epurs/sshtun:latest
 ```
 
 #### download from release 
@@ -28,17 +28,17 @@ docker run --rm --network host epurs/sshtun:lastest
 #### docker run
 
 ```bash
-# docker run --rm epurs/sshtun:lastest --help
+# docker run --rm epurs/sshtun:latest --help
 
-# docker run --rm --network host -e "USER=root" -e "HOST=epurs.com" -e "PASSWORD=123456" -e "LISTEN=0.0.0.0:1080" epurs/sshtun:lastest
+# docker run --rm --network host -e "USER=root" -e "HOST=epurs.com" -e "PASSWORD=123456" -e "LISTEN=0.0.0.0:1080" epurs/sshtun:latest
 
-# docker run --rm --network host -e "USER=sshuser" -e "HOST=sshhost" -e "PASSWORD=sshpassword" -e "LISTEN=0.0.0.0:1080" -e "AUTH=user:password" epurs/sshtun:lastest
+# docker run --rm --network host -e "USER=sshuser" -e "HOST=sshhost" -e "PASSWORD=sshpassword" -e "LISTEN=0.0.0.0:1080" -e "AUTH=user:password" epurs/sshtun:latest
 
 docker run -d --name sshtun1080 \
 --restart unless-stopped \
 -p 1080:1080 \
 -v /Users/fimreal/.ssh:/root/.ssh \
-epurs/sshtun:lastest \
+epurs/sshtun:latest \
 -h epurs.com \
 -uroot \
 -i /root/.ssh/id_ed25519 \
